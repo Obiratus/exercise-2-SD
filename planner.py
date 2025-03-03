@@ -154,7 +154,7 @@ def write_solution(solution, filename):
         for op in solution:
             print(op.name, file=file)
 
-
+# Called by plan.py after parsing the cli parameter
 def search_plan(
     domain_file, problem_file, search, heuristic_class, use_preferred_ops=False
 ):

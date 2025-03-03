@@ -176,6 +176,8 @@ def astar_search(
     # Counter of the nodes that have been expanded
     expansions = 0
 
+    is_first_iteration = True
+
     # Iterate over the heap as long as the heap contains items to pop
     while open:
 
@@ -183,7 +185,10 @@ def astar_search(
         # Pop the next SearchNode instance (pop_node) from the heap (i.e. the next node with the lowest estimated cost)
         # pop_node is the node that will be expanded in this round!
         # HINT: Use the function heappop() of the heapq module: https://pythontic.com/algorithms/heapq/heappop
-        (f, h, _tie, pop_node) = (None, float("inf"), None, None) # update this line to implement step 1 
+
+        # Task 2 part 2
+        logging.info("Task 2 part 2 step 1")
+        (f, h, _tie, pop_node) = heapq.heappop(open)
 
         # Update the best cost value
         if h < besth:
@@ -193,8 +198,11 @@ def astar_search(
         # ---- Step 2 ----
         # Use the node to be expanded to get its state and its cost g (i.e. the path length to the node). 
         # See searchspace.py
-        pop_state =  None # state in node, update this line to implement step 2
-        pop_g =  None # cost g of node, update this line to implement step 2
+
+        # Task 2 part 2
+        logging.info("Task 2 part 2 step 2")
+        pop_state = pop_node.state
+        pop_g = pop_node.g
 
         # ---- Step 3 ----
         # Only expand the node if its cost g is the lowest cost known for the node's state. 
@@ -203,49 +211,113 @@ def astar_search(
         # HINT: The costs found in previous loops are stored with their associated state  
         #       in the state_cost dictionary (see before loop)
         # If the cost g of the node is equal to the lowest cost known for the node's state (Step 5):
-            # ---- Step 4 ----
-            # Increase the expansions counter and optionally print it
 
-            # ---- Step 5 ----
-            # If the goal of the task has been reach in the node's state, 
-            # then extract the solution and return it!
-            # HINT: You can extract the solution to the task, using the SearchNode method extract_solution() 
-           
-            # ---- Step 6 ----
-            # Else create and add each neighbor node of the node to the heap if it is worth exploring
-            # HINT: You can create neighbor nodes, using the SearchNode method make_child_node()
-            # For every neighbor state of the node's state:
-                # i) Create a neighbor node 
-                # ii) Calculate the h cost of the neighbor node using the callable parameter "heuristic" 
-                #     (see above how the h cost was calculated for the root node)
-                # iii) If h is equal to infinite continue to a new round (the next neighbor state) 
-                #      You don't need to care about states that can't reach the goal.
-                # iv) Else, compare the cost g of the neighbor node's state with the lowest cost known
-                #     for the neighbor's node state to see if the neighbor node is worth expanding! 
-                #     If the state hasn't been reach before (i.e. the state is not in cost_state), 
-                #     we should expand the node to be able to reach the state. Go to Step 7. 
-                #     Else, if the cost g of the neighbor node's state is smaller, we should expand 
-                #     the node to reach the state in a cheaper way. Go to Step 7.
-                #     Else, continue to a new round (the next neighbor state), since we can 
-                #     already reach the state in a cheaper way discovered in the past.
+        # Task 2 part 2
+        logging.info("Task 2 part 2 step 3")
+        logging.info(f"Checking state: {pop_state} with pop_g={pop_g} and recorded state_cost={state_cost.get(pop_state, float('inf'))}")
+        if not is_first_iteration and state_cost.get(pop_state, float("inf")) < pop_g:
+            logging.info(
+                f"Skipping state: {pop_state} - current pop_g={pop_g}, "
+                f"recorded state_cost={state_cost.get(pop_state)}"
+            )
+            continue  # Skip expansion if a cheaper path exists
 
 
-                # If one of the conditions in iv) holds add the neighbor node to the heap
-                    # ---- Step 7 ----
-                    # i) Increase node_tiebreaker by 1
-                    # ii) Store the cost g of the neighbor node's state to the state_cost dictionary
-                    # iii) Add the neighbor node in the heap of nodes to be expanded ("open").
-                    #      The neighbor node is stored along with 1) the estimated heuristic values 
-                    #      f and h for reaching the goal state from the state in node, and 2) the 
-                    #      node_tiebreaker value. f is calculated based on the callable parameter
-                    #      make_open_entry, i.e. based on the type of the A* search algorithm.
-                    #
-                    #      The node is stored in a heap so that nodes are ordered based on their 
-                    #      estimated cost. See more here: https://pythontic.com/algorithms/heapq/heappush
-                    #      See also above, how the root node was stored in the heap.
+        is_first_iteration = False
+        # ---- Step 4 ----
+        # Increase the expansions counter and optionally print it
+
+        # Task 2 part 2
+        logging.info("Task 2 part 2 step 4")
+        expansions += 1
+        logging.info(f"Expanding node {pop_node} with cost: {f}")
+
+        # ---- Step 5 ----
+        # If the goal of the task has been reach in the node's state,
+        # then extract the solution and return it!
+        # HINT: You can extract the solution to the task, using the SearchNode method extract_solution()
+
+        # Task 2 part 2
+        logging.info("Task 2 part 2 step 5")
+        logging.info(f"Checking if goal reached for state: {pop_state}")
+        if task.goal_reached(pop_state):
+            logging.info(f"Goal reached after {expansions} expansions!")
+            return pop_node.extract_solution()
+
+        # ---- Step 6 ----
+        # Else create and add each neighbor node of the node to the heap if it is worth exploring
+        # HINT: You can create neighbor nodes, using the SearchNode method make_child_node()
+        # For every neighbor state of the node's state:
+            # i) Create a neighbor node
+            # ii) Calculate the h cost of the neighbor node using the callable parameter "heuristic"
+            #     (see above how the h cost was calculated for the root node)
+            # iii) If h is equal to infinite continue to a new round (the next neighbor state)
+            #      You don't need to care about states that can't reach the goal.
+            # iv) Else, compare the cost g of the neighbor node's state with the lowest cost known
+            #     for the neighbor's node state to see if the neighbor node is worth expanding!
+            #     If the state hasn't been reach before (i.e. the state is not in cost_state),
+            #     we should expand the node to be able to reach the state. Go to Step 7.
+            #     Else, if the cost g of the neighbor node's state is smaller, we should expand
+            #     the node to reach the state in a cheaper way. Go to Step 7.
+            #     Else, continue to a new round (the next neighbor state), since we can
+            #     already reach the state in a cheaper way discovered in the past.
+
+        # Task 2 part 2, I have no else, as we wouldn't get this far if return pop_node.extract_solution() was actually called.
+        logging.info("Task 2 part 2 step 6")
+        for action, successor_state in task.get_successor_states(pop_state):
+            logging.info(f"Action: {action}, Successor State: {successor_state}")
+            # i)
+            child_node = searchspace.make_child_node(pop_node, action, successor_state)
+
+            # ii)
+            child_h = heuristic(child_node)
+            logging.info(f"State: {child_node.state}, Heuristic Value: {child_h}")
+            logging.info(f"Child Node: {child_node}, Heuristic: {child_h}")
+
+            # iii)
+            if child_h == float("inf"):
+                continue
+
+            # iv)
+            child_g = child_node.g
+            if successor_state not in state_cost or child_g < state_cost[successor_state]:
+                # Step 7
+                logging.info("Task 2 part 2 step 7")
+                logging.info(f"Adding successor state: {successor_state}, child_g: {child_g}")
+                # i)
+                node_tiebreaker += 1
+
+                # ii)
+                state_cost[successor_state] = child_g
+
+                # iii)
+                heapq.heappush(open, make_open_entry(child_node, child_h, node_tiebreaker))
+            else:
+                logging.info(
+                    f"Skipping successor state: {successor_state} - current child_g={child_g}, "
+                    f"recorded state_cost={state_cost.get(successor_state)}"
+                )
+
+
+            # If one of the conditions in iv) holds add the neighbor node to the heap
+                # ---- Step 7 ----
+                # i) Increase node_tiebreaker by 1
+                # ii) Store the cost g of the neighbor node's state to the state_cost dictionary
+                # iii) Add the neighbor node in the heap of nodes to be expanded ("open").
+                #      The neighbor node is stored along with 1) the estimated heuristic values
+                #      f and h for reaching the goal state from the state in node, and 2) the
+                #      node_tiebreaker value. f is calculated based on the callable parameter
+                #      make_open_entry, i.e. based on the type of the A* search algorithm.
+                #
+                #      The node is stored in a heap so that nodes are ordered based on their
+                #      estimated cost. See more here: https://pythontic.com/algorithms/heapq/heappush
+                #      See also above, how the root node was stored in the heap.
 
         # Increase the counter by 1
         counter += 1
+        # Task 2 part 2
+        logging.info(f"Iteration {counter}: open list size = {len(open)}")
+
 
     # If no solution has been extracted and returned after iterating over the whole
     # heap, the function returns None, considering that the task is unsolvable
