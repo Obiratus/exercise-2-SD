@@ -10,13 +10,20 @@
 - Problem PDDL see: [t1_2-problem.pddl](../task-1/task-1_2/t1_2-problem.pddl)
 
 ## Task 2
+The git repo can be found here:
+https://github.com/Obiratus/exercise-2-SD
 
-```
-python3 plan.py -s astar examples/blocks-world-domain.pddl examples/blocks-world-problem.pddl
-```
 Run the planner with the astar algorithm:
 ```
 python3 plan.py -s astar examples/blocks-world-domain.pddl examples/blocks-world-problem.pddl
+```
+Results in:
+```
+Goal reached after 7 expansions!
+Search end: blocks-world-problem
+Search time: 0.0014
+[<Op (unstack c a)>, <Op (put-down c)>, <Op (pick-up b)>, <Op (stack b c)>, <Op (pick-up a)>, <Op (stack a b)>]
+Plan length: 6
 ```
 
 ## Task 3
@@ -84,7 +91,8 @@ It occurs in scenarios where subgoal dependencies clash. This happens when:
 
 The structural features of the domain and problem make it susceptible.
 
-#### Action preconditions and dependencies
+#### Action preconditions and dependencies  
+.
 `cleanRoom` depends on both `(at room1)` and `(haveHoover)`, requiring careful order (see snipped above).
 
 The agent must explicitly satisfy `(at storage1)` to acquire the hoover, which conflicts with prematurely attempting to clean `room1`. 
@@ -98,7 +106,8 @@ getHoover:
 )
 ```
 #### Initial problem setup
-The agent starts in `reception1`:
+.
+The agent starts in `reception1`: 
    ```
    (:init 
        (at reception1) ; Initial location of the agent
@@ -112,6 +121,7 @@ The goal is to clean the room:
    ```
 
 #### Spatial constraints
+.
 Moving between `reception1`, `room1`, and `storage1` requires efficient planning to minimize redundant moves.
 If dependencies like `(haveHoover)` and `(at room1)` are resolved in isolation or in the wrong order, they reinforce conflicts.
 
